@@ -1,0 +1,72 @@
+<?php 
+require_once 'lib/database.php';
+require_once 'helpers/format.php';
+?>
+
+<?php 
+
+class Tour
+{
+	private $db;
+	private $fm;
+	function __construct()
+	{
+		$this->db = new Database();
+		$this->fm = new Format();
+	}
+
+	public function visaCustomTourAdd($data){
+		$passport_name = $_POST['passport_name'];
+		$travel_date = $_POST['travel_date'];
+		$profession = $_POST['profession'];
+		$education = $_POST['education'];
+		$will_visit = $_POST['will_visit'];
+		$pre_visit = $_POST['pre_visit'];
+		$info = $_POST['info'];
+		$email = $_POST['email'];
+		$phone = $_POST['phone'];
+
+		$passport_name = $this->fm->validation($passport_name);
+		$travel_date = $this->fm->validation($travel_date);
+		$profession = $this->fm->validation($profession);
+		$education = $this->fm->validation($education);
+		$will_visit = $this->fm->validation($will_visit);
+		$pre_visit = $this->fm->validation($pre_visit);
+		$info = $this->fm->validation($info);
+		$email = $this->fm->validation($email);
+		$phone = $this->fm->validation($phone);
+
+		$passport_name = mysqli_real_escape_string($this->db->link,$passport_name);
+		$travel_date = mysqli_real_escape_string($this->db->link,$travel_date);
+		$profession = mysqli_real_escape_string($this->db->link,$profession);
+		$education = mysqli_real_escape_string($this->db->link,$education);
+		$will_visit = mysqli_real_escape_string($this->db->link,$will_visit);
+		$pre_visit = mysqli_real_escape_string($this->db->link,$pre_visit);
+		$info = mysqli_real_escape_string($this->db->link,$info);
+		$email = mysqli_real_escape_string($this->db->link,$email);
+		$phone = mysqli_real_escape_string($this->db->link,$phone);
+
+		$query = "INSERT INTO post_comments (name,email,comment,blog_id) VALUES ('$name','$email','$comment','$blog_id')";
+		$insertRow = $this->db->insert($query);
+		if ($insertRow) {
+			$msg = "<div class='alert alert-success' role='alert'>Your Comment Successfully Added.</div>";
+			return $msg;
+		}else{
+			$msg = "<div class='alert alert-danger' role='alert'>Something Went Wromg!!</div>";
+			return $msg;
+		}
+	}
+
+
+	public function getBlogWiseComments($b_id){
+		$query = "SELECT * FROM post_comments WHERE blog_id = $b_id";
+		$result = $this->db->select($query);
+		return $result;
+	}
+
+
+
+}
+
+?>
+

@@ -1,0 +1,247 @@
+<?php 
+require_once 'lib/database.php';
+require_once 'helpers/format.php';
+?>
+
+<?php 
+
+class Blog
+{
+	private $db;
+	private $fm;
+	function __construct()
+	{
+		$this->db = new Database();
+		$this->fm = new Format();
+	}
+
+
+	public function blogPostUpload($file,$title,$description,$cat_id,$tag)
+	{
+		   $title = $this->fm->validation($title);
+		   $description = $this->fm->validation($description);
+		   $cat_id = $this->fm->validation($cat_id);
+		   $title = mysqli_real_escape_string($this->db->link,$title);
+		   $description = mysqli_real_escape_string($this->db->link,$description);
+		   $cat_id = mysqli_real_escape_string($this->db->link,$cat_id);
+
+   		   	   $errors = array();
+   		   	   $uploadedFiles = array();
+   		   	   $permited  = array('jpg', 'jpeg', 'png', 'gif','JPG', 'JPEG', 'PNG', 'GIF');
+   		   	   $totalBytes = 10240000;
+   		   	   $UploadFolder = "BlogImageFolder";
+   		   	   
+   		   	   $counter = 0;
+   		   	   
+   		   	   
+   		   	   	$temp = $_FILES["files"]["tmp_name"];
+   		   	   	$name = $_FILES["files"]["name"];
+   		   	   	$size = $_FILES["files"]["size"];
+   		   	   	
+   		   	   	/*if(empty($temp))
+   		   	   	{
+   		         		$msg = "<div class='alert alert-danger' role='alert'>Please choose an image first.</div>";
+   		   			return $msg;
+   		   	   	}*/
+   		   	   	
+   		   	   	$counter++;
+   		   	   	$UploadOk = true;
+   		   	   	
+   		   	   	if($size> $totalBytes)
+   		   	   	{
+   		   	   		$UploadOk = false;
+   		          		$msg = "<div class='alert alert-danger' role='alert'>".$name." - Size should be 10MB or less then 10MB!</div>";
+   		   			return $msg;
+   		   	   		
+   		   	   	}
+   		   	   	
+   		   	   	$ext = pathinfo($name, PATHINFO_EXTENSION);
+   		   	   	if(in_array($ext, $permited) == false){
+   		   	   		$UploadOk = false;
+   		         		$msg = "<div class='alert alert-danger' role='alert'>".$name." - is invalid file type.You can upload only JPG,JPEG,PNG or GIF file!</div>";
+   		   			return $msg;
+   		   	   		
+   		   	   	}
+   		   	   	$uploaded_image = $UploadFolder."/".$name;
+   		   	   	
+   		   	   	
+   		   	   	if($UploadOk == true){
+   		   	   		move_uploaded_file($temp,$uploaded_image);
+   		   	   		array_push($uploadedFiles, $uploaded_image);
+   		   	   	}
+
+
+   		   	   
+   		   	   	 
+   		   	 
+   		   	   
+   		   	   if($counter>0){
+   		   	   	if(count($errors)>0)
+   		   	   	{
+   		   	   		echo "<b>Errors:</b>";
+   		   	   		echo "<br/><ul>";
+   		   	   		foreach($errors as $error)
+   		   	   		{
+   		   	   			echo "<li>".$error."</li>";
+   		   	   		}
+   		   	   		echo "</ul><br/>";
+   		   	   	}
+   		   	   	
+   		   	   	if(count($uploadedFiles)>0){
+   		   	   		
+   		   	   		foreach($uploadedFiles as $fileName)
+   		   	   		{
+   		   	   			$query = "INSERT INTO blog (title,description,image,cat_id,created_at) VALUES ('$title','$description','$fileName','$cat_id',now())";
+   		   	   			$insertRow = $this->db->insert($query);
+   		   	   			if ($insertRow) {
+   		   	   				$sub_query = "SELECT blog_id FROM blog ORDER BY blog_id DESC LIMIT 1";
+   		   	   				$result = $this->db->select($sub_query);
+   		   	   				if ($result) {
+   		   	   					while ($val = $result->fetch_assoc()) {
+   		   	   						$last_id = $val['blog_id'];
+   		   	   					}
+   		   	   				}
+   		   	   			}
+   		   	   			foreach ($tag as  $value) {
+   		   	   				$query = "INSERT INTO tags (name,blog_id) VALUES ('$value','$last_id')";
+   		   	   				$insertRow = $this->db->insert($query);
+   		   	   			}
+   			      		$msg = "<div class='alert alert-success' role='alert'> - Successfully added to Blog.</div>";
+   						return $msg;
+   		   	   		}
+   		   	   	}								
+   		   	   }
+
+
+
+		   
+		}
+
+
+
+		public function getAllBlogs(){
+			$query = "SELECT * FROM blog  ORDER BY blog_id DESC";
+			$result = $this->db->select($query);
+			return $result;
+		}
+
+		public function getBlogById($blog_id){
+			$query = "SELECT * FROM blog  WHERE blog_id = $blog_id";
+			$result = $this->db->select($query);
+			return $result;
+		}
+
+
+		
+
+		public function blogPostUpdate($file,$title,$description,$cat_id,$blog_id,$tag)
+		{
+
+			   $title = $this->fm->validation($title);
+			   $description = $this->fm->validation($description);
+			   $tag = $this->fm->validation($tag);
+			   $cat_id = $this->fm->validation($cat_id);
+			   $title = mysqli_real_escape_string($this->db->link,$title);
+			   $description = mysqli_real_escape_string($this->db->link,$description);
+			   $cat_id = mysqli_real_escape_string($this->db->link,$cat_id);
+			   $tag = mysqli_real_escape_string($this->db->link,$tag);
+
+	   		   	   $errors = array();
+	   		   	   $uploadedFiles = array();
+	   		   	   $permited  = array('jpg', 'jpeg', 'png', 'gif','JPG', 'JPEG', 'PNG', 'GIF');
+	   		   	   $totalBytes = 10240000;
+	   		   	   $UploadFolder = "BlogImageFolder";
+	   		   	   
+	   		   	   $counter = 0;
+	   		   	   
+	   		   	   
+	   		   	   	$temp = $_FILES["files"]["tmp_name"];
+	   		   	   	$name = $_FILES["files"]["name"];
+	   		   	   	$size = $_FILES["files"]["size"];
+	   		   	   	
+	   		   	   	/*if(empty($temp))
+	   		   	   	{
+	   		         		$msg = "<div class='alert alert-danger' role='alert'>Please choose an image first.</div>";
+	   		   			return $msg;
+	   		   	   	}*/
+	   		   	   	
+	   		   	   	$counter++;
+	   		   	   	$UploadOk = true;
+	   		   	   	
+	   		   	   	if($size> $totalBytes)
+	   		   	   	{
+	   		   	   		$UploadOk = false;
+	   		          		$msg = "<div class='alert alert-danger' role='alert'>".$name." - Size should be 10MB or less then 10MB!</div>";
+	   		   			return $msg;
+	   		   	   		
+	   		   	   	}
+	   		   	   	
+	   		   	   	$ext = pathinfo($name, PATHINFO_EXTENSION);
+	   		   	   	if(in_array($ext, $permited) == false){
+	   		   	   		$UploadOk = false;
+	   		         		$msg = "<div class='alert alert-danger' role='alert'>".$name." - is invalid file type.You can upload only JPG,JPEG,PNG or GIF file!</div>";
+	   		   			return $msg;
+	   		   	   		
+	   		   	   	}
+	   		   	   	$uploaded_image = $UploadFolder."/".$name;
+	   		   	   	
+	   		   	   	
+	   		   	   	if($UploadOk == true){
+	   		   	   		move_uploaded_file($temp,$uploaded_image);
+	   		   	   		array_push($uploadedFiles, $uploaded_image);
+	   		   	   	}
+	   		   	   
+	   		   	   
+	   		   	   if($counter>0){
+	   		   	   	if(count($errors)>0)
+	   		   	   	{
+	   		   	   		echo "<b>Errors:</b>";
+	   		   	   		echo "<br/><ul>";
+	   		   	   		foreach($errors as $error)
+	   		   	   		{
+	   		   	   			echo "<li>".$error."</li>";
+	   		   	   		}
+	   		   	   		echo "</ul><br/>";
+	   		   	   	}
+
+	   		   	   	
+	   		   	   	
+	   		   	   	if(count($uploadedFiles)>0){
+	   		   	   		foreach($uploadedFiles as $fileName)
+	   		   	   		{
+   			   	   			$query = "UPDATE blog SET title = '$title', description = '$description', tag = '$tag', image = '$fileName', cat_id = '$cat_id', created_at = now() WHERE blog_id = $blog_id";
+   			   	   			$insertRow = $this->db->insert($query);
+   				      		$msg = "<div class='alert alert-success' role='alert'> - Successfully updated Blog.</div>";
+   							return $msg;
+	   		   	   		}
+	   		   	   	}								
+	   		   	   }
+
+
+
+			   
+			}
+
+
+			public function deleteBlog($del_blog_id)
+			{
+				$query = "DELETE FROM blog WHERE blog_id = '$del_blog_id'";
+				$result = $this->db->delete($query);
+
+				if ($result) {
+				$msg = "<div class='alert alert-success' role='alert'>Blog has been deleted successfully.</div>";
+					return $msg;
+				}else{
+				$msg = "<div class='alert alert-danger' role='alert'>Something went wrong. Please try again later.</div>";
+					return $msg;
+				}	
+			}
+
+
+
+}
+
+
+
+?>
+

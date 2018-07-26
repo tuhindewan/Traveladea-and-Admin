@@ -1,0 +1,7 @@
+<?php if (count($errors) > 0) { ?>
+	<div class="alert alert-danger">
+	<?php foreach ($errors as $error): ?>
+	  <strong>Danger!</strong> Indicates a dangerous or potentially negative action.
+	<?php endforeach ?>
+	</div>
+<?php } ?>

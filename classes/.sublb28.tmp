@@ -1,0 +1,43 @@
+<?php 
+require_once 'lib/database.php';
+require_once 'helpers/format.php';
+?>
+
+<?php 
+
+class Comment
+{
+	private $db;
+	private $fm;
+	function __construct()
+	{
+		$this->db = new Database();
+		$this->fm = new Format();
+	}
+
+	public function commentAdd($data){
+		$name = $_POST['name'];
+		$email = $_POST['email'];
+		$comment = $_POST['comment'];
+
+		$type_name = $this->fm->validation($type_name);
+
+		$type_name = mysqli_real_escape_string($this->db->link,$type_name);
+
+		$query = "INSERT INTO service_type (type_name) VALUES ('$type_name')";
+		$insertRow = $this->db->insert($query);
+		if ($insertRow) {
+			$msg = "<div class='alert alert-success' role='alert'>Service Type Successfully Added.</div>";
+			return $msg;
+		}else{
+			$msg = "<div class='alert alert-danger' role='alert'>Something Went Wromg!!</div>";
+			return $msg;
+		}
+	}
+
+
+
+}
+
+?>
+

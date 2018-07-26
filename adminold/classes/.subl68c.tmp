@@ -1,0 +1,53 @@
+<?php 
+require_once 'lib/database.php';
+require_once 'helpers/format.php';
+?>
+
+<?php 
+
+class User
+{
+	private $db;
+	private $fm;
+	function __construct()
+	{
+		$this->db = new Database();
+		$this->fm = new Format();
+	}
+
+
+	public function userRegistration($data){
+
+			$name = $_POST['name'];
+			$email = $_POST['email'];
+			$password =  md5($_POST['password']);
+			$confirmPassword = md5($_POST['password_confirmation']);
+
+			$name = $this->fm->validation($name);
+			$email = $this->fm->validation($email);
+			$password = $this->fm->validation($password);
+			$confirmPassword = $this->fm->validation($confirmPassword);
+
+			$name = mysqli_real_escape_string($this->db->link,$name);
+			$email = mysqli_real_escape_string($this->db->link,$email);
+			$password = mysqli_real_escape_string($this->db->link,$password);
+			$confirmPassword = mysqli_real_escape_string($this->db->link,$confirmPassword);
+
+			$query = "INSERT INTO admins (name,email,password,con_password) VALUES ('$fullname','$username','$email','$password','$confirmPassword')";
+			$insertRow = $this->db->insert($query);
+			if ($insertRow) {
+				$msg = "<div class='alert alert-success' role='alert'>Congratulations ! You successfully registered.</div>";
+				return $msg;
+			}else{
+				$msg = "<div class='alert alert-danger' role='alert'>Something Went Wromg!!</div>";
+				return $msg;
+			}
+
+			
+ 	}
+}
+
+
+
+
+?>

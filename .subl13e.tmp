@@ -1,0 +1,52 @@
+<?php require_once 'partials/header.php'; ?>
+<?php
+require_once 'classes/Blog.php';
+$Blog = new Blog();
+$blogs  = $Blog->getAllBlogs();
+?>
+    <div class="content-body">
+      <div class="container page">
+        <div class="row masonry">
+          <div class="col-md-12">
+            <div class="row">
+            <?php
+              if ($blogs) {
+                while ($result = $blogs->fetch_assoc()) {
+
+            ?>
+              <!-- Blog Post-->
+              <div class="col-lg-6 mb-30">
+                <!-- Blog item-->
+                <div class="blog-item clearfix border">
+                  <!-- Blog Image-->
+                  <div class="blog-media"><a href="blog_single.php?blog=<?php echo $result['blog_id']; ?>">
+                      <div class="pic"><img class="res_blog_img" src="admin/<?php echo $result['image']; ?>" data-at2x="admin/<?php echo $result['image']; ?>" alt style="height:180px;width:180px;" ></div></a></div>
+                  <!-- blog body--> 
+                  <div class="blog-item-body clearfix">
+                    <!-- title--><a href="blog_single.php?blog=<?php echo $result['blog_id']; ?>">
+                      <h6 class="blog-title"><?php echo $result['title']; ?></h6></a>
+                    <div class="blog-item-data"><?php echo date('M j Y g:i A', strtotime($result['created_at'])); ?></div>
+                    <!-- Text Intro-->
+                    <p><?php echo substr($result['description'], 0,90);  ?><?php if (strlen($result['description']) > 90) { ?>.... <?php } ?></p><a href="blog_single.php?blog=<?php echo $result['blog_id']; ?>" class="blog-button">Read more</a>
+                  </div>
+                </div>
+                <!-- ! Blog item-->
+              </div>
+              <!-- ! Blog Post-->
+              <?php }} ?> 
+            </div>
+            <div style="text-align:center;">
+              <?php
+                $data = $Blog->countTotalBlogs();
+                $total = $data->fetch_assoc();
+                $count = $total['total_blog'];
+                $a = $count/4;
+                $total_page = ceil($a);
+                print_r($total_page);
+              ?>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+<?php require_once 'partials/footer.php'; ?>

@@ -1,0 +1,109 @@
+<?php 
+require_once 'lib/database.php';
+require_once 'helpers/format.php';
+$errors = array();
+?>
+
+<?php 
+
+class Tour
+{
+	private $db;
+	private $fm;
+	function __construct()
+	{
+		$this->db = new Database();
+		$this->fm = new Format();
+	}
+
+	public function visaCustomTourAdd($data){
+
+		$errors = array();
+		$passport_name = $_POST['passport_name'];
+		$travel_date = $_POST['travel_date'];
+		$profession = $_POST['profession'];
+		$education = $_POST['education'];
+		$will_visit = $_POST['will_visit'];
+		$pre_visit = $_POST['pre_visit'];
+		$info = $_POST['info'];
+		$email = $_POST['email'];
+		$phone = $_POST['phone'];
+
+		$passport_name = $this->fm->validation($passport_name);
+		$travel_date = $this->fm->validation($travel_date);
+		$profession = $this->fm->validation($profession);
+		$education = $this->fm->validation($education);
+		$will_visit = $this->fm->validation($will_visit);
+		$pre_visit = $this->fm->validation($pre_visit);
+		$info = $this->fm->validation($info);
+		$email = $this->fm->validation($email);
+		$phone = $this->fm->validation($phone);
+
+		$passport_name = mysqli_real_escape_string($this->db->link,$passport_name);
+		$travel_date = mysqli_real_escape_string($this->db->link,$travel_date);
+		$profession = mysqli_real_escape_string($this->db->link,$profession);
+		$education = mysqli_real_escape_string($this->db->link,$education);
+		$will_visit = mysqli_real_escape_string($this->db->link,$will_visit);
+		$pre_visit = mysqli_real_escape_string($this->db->link,$pre_visit);
+		$info = mysqli_real_escape_string($this->db->link,$info);
+		$email = mysqli_real_escape_string($this->db->link,$email);
+		$phone = mysqli_real_escape_string($this->db->link,$phone);
+
+		$data = array();
+		$data['type'] = 0;
+		$data['status'] = '';
+		if (empty($passport_name)) {
+			array_push($data['status'], "Name is required");
+		}
+
+		if (empty($travel_date)) {
+			array_push($data['status'], "Travel date is required");
+		}
+
+		if (empty($profession)) {
+			array_push($data['status'], "Please mention your present profession");
+		}
+
+		if (empty($education)) {
+			array_push($data['status'], "Please mention your educational qualification");
+		}
+
+		if (empty($will_visit)) {
+			array_push($data['status'], "Please mention country name where you want to visit");
+		}
+
+		if (empty($pre_visit)) {
+			array_push($data['status'], "Please mention your previously visited country name");
+		}
+
+		if (empty($email)) {
+			array_push($data['status'], "Email field is required");
+		}elseif (!preg_match("^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$^",$email)) {
+			array_push($data['status'], "Email address is invalid");
+		}
+
+		if (empty($phone)) {
+			array_push($data['status'], "Your contact number is required");
+		}	
+		
+		if (count($data['status']) == 0) {
+			$data['type'] = 1;
+			$query = "INSERT INTO visa_custom_tour (passport_name,travel_date,profession,education,will_visit,pre_visit,info,email,phone) VALUES ('$passport_name','$travel_date','$profession','$education','$will_visit','$pre_visit','$info','$email','$phone')";
+			$insertRow = $this->db->insert($query);
+			$data['status'] = "successfully";
+			return $data;
+		  }else{
+		  	return $data;
+		  }
+		  
+
+
+	}
+
+
+
+
+}
+
+?>
+
